@@ -22,8 +22,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "parse.h"
-
-Request * parse(char *buffer, int size, int socketFd);
+#include "response.h"
 
 #define ECHO_PORT 9999
 #define BUF_SIZE 8192
@@ -91,23 +90,11 @@ int main(int argc, char* argv[])
 
         while((readret = recv(client_sock, buf, BUF_SIZE, 0)) >= 1)
         {   
+            //parse the buff , let it become Request
             Request *request = parse(buf,readret,sock);
             
-            //memset(buf,0,sizeof buf);
-            char _case3[]="HTTP/1.1 400 Bad request\r\n\r\n";
-            char _case2[]="HTTP/1.1 501 Not Implemented\r\n\r\n";
-            if(request==NULL){
-                //case3
-                strcpy(buf,_case3);
-                readret=strlen(_case3);
-            } else if(strcmp(request->http_method,"GET")!=0&&strcmp(request->http_method,"HEAD")!=0&&strcmp(request->http_method,"POST")!=0){
-                //case2
-                strcpy(buf,_case2);
-                readret=strlen(_case2);
-            } else{
-                ;
-                //do nothing
-            }
+            //deal with the request
+            readret = response(request,readret,buf);
 
             if (send(client_sock, buf, readret, 0) != readret)
             {

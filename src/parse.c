@@ -4,7 +4,7 @@
 * Given a char buffer returns the parsed request headers
 */
 
-#define HEADER_LINES 1
+#define HEADER_LINES 6
 
 Request * parse(char *buffer, int size, int socketFd) {
   //Differant states in the state machine

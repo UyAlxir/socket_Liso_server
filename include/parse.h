@@ -1,3 +1,6 @@
+#ifndef __PARSE_H_
+#define __PARSE_H_
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,3 +29,5 @@ Request* parse(char *buffer, int size,int socketFd);
 // functions decalred in parser.y
 int yyparse();
 void set_parsing_options(char *buf, size_t i, Request *request);
+
+#endif

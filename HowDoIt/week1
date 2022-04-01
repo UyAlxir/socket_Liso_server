@@ -2,36 +2,36 @@ week1 开始前的准备
 1. 配环境自不必说
 2. 网上找资料看socket编程和lex&yacc编程,才能看懂初始代码
 
-根据初始的echo_client 和echo_server 的互动，以及提前看过的socket 编程资料，大致看懂server和client各自的代码
+根据初始的echo_client 和echo_server 的互动,以及提前看过的socket 编程资料,大致看懂server和client各自的代码
 
-根据example，模仿读入指令的方式，并发现需要对于穿过的内容，需要调用parse()函数来分解指令
+根据example,模仿读入指令的方式,并发现需要对于穿过的内容,需要调用parse()函数来分解指令
 
 //对 echo_client 的修改
-然后第一步，修改client_server的输入指令方式，从从键盘输入改为从文件读取，去掉fgets函数，仿照example来读取
-这时需要给echo_client添加参数，本来有2个参数，即要通信的server的ip和端口，在加上第三个参数即要读取的文件的指令
-这样以来的，echo_client 的argc得是4不然就返回错误
+然后第一步,修改client_server的输入指令方式,从从键盘输入改为从文件读取,去掉fgets函数,仿照example来读取
+这时需要给echo_client添加参数,本来有2个参数,即要通信的server的ip和端口,在加上第三个参数即要读取的文件的指令
+这样以来的,echo_client 的argc得是4不然就返回错误
 
 //对 echo_server 的修改
-再看server(echo_server)，前90行左右都是一些socket专属操作，我们需要定位iclient传过来的消息，发现它在while循环里
-捕捉到消息后，需要仿照example来分解他，因此引入parse函数，加上需要的头文件
-然后发现，没法编译，汇报错没有定义parse() 函数
-分析一番后发现，这个函数会调用lex&yacc里定义的函数，他没找着，所以报的错
+再看server(echo_server),前90行左右都是一些socket专属操作,我们需要定位iclient传过来的消息,发现它在while循环里
+捕捉到消息后,需要仿照example来分解他,因此引入parse函数,加上需要的头文件
+然后发现,没法编译,汇报错没有定义parse() 函数
+分析一番后发现,这个函数会调用lex&yacc里定义的函数,他没找着,所以报的错
 
 //Makefile
-这时压力来到了编译这边，通过看makefile文件，发现他对example和server的编译有些区别
-echo_server的编译比较简单，example的编译挺复杂的
-掌握makefile的一些规则后，改动了server的编译，把lex&yacc也加进去了(but，并没有完全掌握)
+这时压力来到了编译这边,通过看makefile文件,发现他对example和server的编译有些区别
+echo_server的编译比较简单,example的编译挺复杂的
+掌握makefile的一些规则后,改动了server的编译,把lex&yacc也加进去了(but,并没有完全掌握)
 然后server可以包含parse函数并编译通过了
 
 //专攻parse函数
-发现它调用完set_parsing_options(buf, i, request)之后，信息都出现在了reques结构体里
-然后如果yypars没有返回succuess，就会给request返回NULL
+发现它调用完set_parsing_options(buf, i, request)之后,信息都出现在了reques结构体里
+然后如果yypars没有返回succuess,就会给request返回NULL
 这样就可以在server调用完parse函数通过是否为null来判断是否为404 bad request
-然后通过example可以看到怎么查看reque里面的信息，我们要判断的内容存在 request->http_method 里
-如果不是GET，HEAD，POST 中的一个就返回 501 Not Implemented
+然后通过example可以看到怎么查看reque里面的信息,我们要判断的内容存在 request->http_method 里
+如果不是GET,HEAD,POST 中的一个就返回 501 Not Implemented
 
 //一小步
-做完这些，可以正确返回sample_request_example了，在autolab提交，就变成了20（有进步了）
+做完这些,可以正确返回sample_request_example了,在autolab提交,就变成了20(有进步了)
 然后发现是没法处理多个header,有多个header它就会parsing failed
 这回到了跟lex&lacc打交道的时候了
 
@@ -39,12 +39,12 @@ echo_server的编译比较简单，example的编译挺复杂的
 根据lex和yacc的功能
 lex会把输入转化为各种我们定义的token
 yacc会把个各种token组合起来形成我们需要的command(一个或多个token的组合)
-通过看资料晓得yacc是循环的，一层一层套
+通过看资料晓得yacc是循环的,一层一层套
 附一个自己认为还不多的yacc入门文献链接  https://zhuanlan.zhihu.com/p/143867739
 然后发现 parsey.y 对request的定义是:(文件尾部)
 request: request_line request_header t_crlf
-即，有一个request_line 然后接一个request_header ,然后又\r\n\r\n
-然而，真正的request 是有多个request_header 的 ，需要修改parsey.y 能识别多个header
+即,有一个request_line 然后接一个request_header ,然后又\r\n\r\n
+然而,真正的request 是有多个request_header 的 ,需要修改parsey.y 能识别多个header
 在request和request_header 之间加一个request_headers , 
 修改requet 的定义为 request: request_line request_headers t_crlf
 而reques_headers 可以是一个或多个甚至没有0个header
@@ -52,8 +52,16 @@ request: request_line request_header t_crlf
 request_headers: //maybe one or more
 | request_headers request_header
 ;
-至此，week1难点结束
 
+至此,week1难点结束
+
+//补充1
+request_header 因为有多个,所以在parse.c 文件中要给request 分配多个空间
+原始代码中只分配了一个request_header 大小的空间,没法过autolab测试
+根据测试文件中有6行requst_headr,define HEADER_LINES 并置为了6
+
+//补充2
+暂时定义了一个response 函数来分析解析出来的 request , 放在了response.c 文件中 
 
 
 
