@@ -25,7 +25,6 @@
 #include "response.h"
 
 #define ECHO_PORT 9999
-#define BUF_SIZE 8192
 
 int close_socket(int sock)
 {
@@ -45,7 +44,7 @@ int main(int argc, char* argv[])
     struct sockaddr_in addr, cli_addr;
     char buf[BUF_SIZE];
 
-    fprintf(stdout, "----- Echo Server -----\n");
+    fprintf(stdout, "----- Liso Server -----\n");
     
     /* all networked programs must create a socket */
     if ((sock = socket(PF_INET, SOCK_STREAM, 0)) == -1)

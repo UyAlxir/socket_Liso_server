@@ -4,8 +4,10 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
 
 #define SUCCESS 0
+#define BUF_SIZE 8192
 
 //Header field
 typedef struct

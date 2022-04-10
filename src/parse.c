@@ -4,7 +4,7 @@
 * Given a char buffer returns the parsed request headers
 */
 
-#define HEADER_LINES 6
+#define HEADER_LINES 19
 
 Request * parse(char *buffer, int size, int socketFd) {
   //Differant states in the state machine
@@ -22,7 +22,7 @@ Request * parse(char *buffer, int size, int socketFd) {
 	while (state != STATE_CRLFCRLF) {
 		char expected = 0;
 
-		if (i == size)
+		if (i == size||i==8192)
 			break;
 
 		ch = buffer[i++];
@@ -60,7 +60,13 @@ Request * parse(char *buffer, int size, int socketFd) {
 		if (yyparse() == SUCCESS) {
             return request;
 		}
+		free(request->headers);
+		free(request);
 	}
+
+	// when it is falied to parse , clear the buffer of parser
+	yylex_destroy();
+	
     //TODO Handle Malformed Requests
     printf("Parsing Failed\n");
 	return NULL;

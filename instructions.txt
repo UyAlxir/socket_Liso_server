@@ -2,8 +2,13 @@ docker build -t 15-441/641-project-1:latest -f ./DockerFile .
 
 docker run -it -v D:/21222/socket/:/home/project-1/ --name alxir 15-441/641-project-1 /bin/bash
 
-docker exec -it c3cd3208d625 /bin/bash
+docker exec -it alxir /bin/bash
 
-./echo_client 127.0.0.1 9999
+docker start alxir
 
-docker start c3cd3208d625
+
+
+//git in cmd
+git add .
+git commit -m "commitment"
+git push -u origin "master"

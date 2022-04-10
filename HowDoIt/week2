@@ -1,0 +1,35 @@
+week2 (2真的是秃/(ㄒoㄒ)/~~)
+
+第二周的主要修改操作还是在response.c 文件中
+
+首先判断parse返回NULL 是否为NULL ,是即为bad request 
+给client返回 400 bad request
+### 重点
+parse 函数 返回NULL , 说明yyac 在分解指令时就出错退出了
+此时缓冲池里面还有数据,需要执行yylex_destroy 函数来清空
+否则会影响下一次运行的请求（就因为这个问题被卡了老久老久(;´༎ຶД༎ຶ`) ）
+
+第二步判断request-http_version 是否为 HTTP/1.1 
+不是的话返回 505 http version not supported
+是则继续进行下一步
+
+第三步就是判断request-method是为GET ,HEAD ,POST
+是其中某一个就 做相应的判断
+否则返回 501 not Implemented
+
+对于上一步三者中的其中某一个
+GET :
+
+先判断request-uri,为空（即为"/"时）,需要返回的是默认网页static_site/index.html
+否则,将传进来的uri作为先对路径,打开文件,能打开则读取文件内容作为实体返回,且附带200 OK
+打不开时返回 404 not found
+
+HEAD :
+直接返回 200 OK 即可,带不带header都可以
+
+POST :
+原模原样返回从client 接受到的消息
+
+附1:
+当request 头部文件大于8192时,不进行parse,直接返回parsing failed ,
+此操作在 parse.c 文件中 , 在从buf 到 buffer 匹配头部是加一个条件即可

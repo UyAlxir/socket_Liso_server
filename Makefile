@@ -16,9 +16,9 @@ CFLAGS   := -g -Wall
 # DEPS = parse.h y.tab.h
 
 default: all
-all : echo_server echo_client
+all : liso_server echo_client
 
-echo_server: $(OBJ) $(OBJ_DIR)/echo_server.o
+liso_server: $(OBJ) $(OBJ_DIR)/echo_server.o
 	$(CC) -Werror $^ -o $@
 
 $(SRC_DIR)/lex.yy.c: $(SRC_DIR)/lexer.l
