@@ -1,0 +1,31 @@
+第三周的内容相较于前两周好理解
+就是简单的实习pipeline功能
+也就是说
+让我们的liso server可以对客户的一次性发过来的多个请求都予以回复
+测试结果就是
+让client 发送sample里面的requst pipeline
+我们的liso server可以对里面的所以指令都返回正确的答复即可
+
+从parse 函数入手
+可以看到
+在前两周实现的代码中
+对与requst pipeline 文件
+parse 函数在找到第一个 \r\n\r\n 之后
+就取出来那一部分
+送进set parsing options 然后返回对应的request 结果
+全然不管这个请求文件还有没有其他请求
+那么我们要组的事情就很明显了
+就让parse 把所有的 request 都分析出来
+把每一部分都单独送进set parsing options 来分析出对应的Request 
+然后把每一个Request 都用response 来处理
+
+其中有一个情况是
+如果我处理完当前的Request 就把结果发送给client的话
+在liso server 的机制中 client 收到一次response 就会关闭socket
+此时最多就只能处理15个并发请求
+
+然后改进的做法是
+先把对每一个Request 处理的结果都存下来
+等都处理完了之后
+把所有答复合并发给client
+就可以在client发过拉的并发请求数据字节不超过BUF_SIZE的条件下处理任意条数的请求

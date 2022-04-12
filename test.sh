@@ -15,3 +15,5 @@
 # ./echo_client 127.0.0.1 9999 ./samples/request_get_good
 
 ./echo_client 127.0.0.1 9999 ./samples/request_pipeline_2
+
+./echo_client 127.0.0.1 9999 ./samples/request_pipeline
