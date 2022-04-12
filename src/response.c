@@ -3,11 +3,11 @@
 int response(Request * request, int readret ,  char * buf){
 
     char _file_cont[BUF_SIZE];
-    memset(_file_cont,0,8192);
+    memset(_file_cont,0,BUF_SIZE);
     
     // 400 bad request
     if(request==NULL){
-        printf("## Received a bad request");
+        // printf("## Received a bad request");
         memset(buf,0,BUF_SIZE);
         strcpy(buf,BAD_REQUEST);
         readret=strlen(BAD_REQUEST);
@@ -20,7 +20,7 @@ int response(Request * request, int readret ,  char * buf){
         strcpy(buf,NOT_SUPPORTED);
         readret=strlen(NOT_SUPPORTED);
         return readret;
-    }        
+    }
 
     //response get
     if(strcmp(request->http_method,_GET)==0){
@@ -41,7 +41,7 @@ int response(Request * request, int readret ,  char * buf){
         }
         strcpy(buf,_200_OK);
         readret=strlen(_200_OK);
-        int file_len = read(fd_in,_file_cont,8192);
+        int file_len = read(fd_in,_file_cont,BUF_SIZE);
         readret+=file_len;
         strcat(buf,_file_cont);
         return readret;

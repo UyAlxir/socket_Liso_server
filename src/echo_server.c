@@ -43,6 +43,10 @@ int main(int argc, char* argv[])
     socklen_t cli_size;
     struct sockaddr_in addr, cli_addr;
     char buf[BUF_SIZE];
+    char ans[24][BUF_SIZE];
+    int lens[24];
+    char res[BUF_SIZE*24];
+    int cur[1];
 
     fprintf(stdout, "----- Liso Server -----\n");
     
@@ -86,23 +90,38 @@ int main(int argc, char* argv[])
         }
 
         readret = 0;
+        int cnt=0;
 
         while((readret = recv(client_sock, buf, BUF_SIZE, 0)) >= 1)
-        {   
-            //parse the buff , let it become Request
-            Request *request = parse(buf,readret,sock);
-            
-            //deal with the request
-            readret = response(request,readret,buf);
+        {           
+            cur[0]=0;
+            int cnt=0;
+            while(cur[0]<readret){
+                int cur_before=cur[0];
+                Request *request = parse(buf+cur[0],readret-cur[0],sock,cur);
+                if(cur[0]-cur_before==2&&request==NULL)continue;
+                strncpy(ans[cnt],buf+cur_before,cur[0]-cur_before);
 
-            if (send(client_sock, buf, readret, 0) != readret)
+                lens[cnt]= response(request,cur[0]-cur_before,ans[cnt]);
+                cnt++;
+                if(cnt>=24)break;
+            }
+            memset(buf, 0, BUF_SIZE); 
+            memset(res,0,sizeof(res));
+            int reslen=0;
+            for(int i=0;i<cnt;i++){
+                strncat(res+reslen,ans[i],lens[i]);
+                reslen+=lens[i];
+                memset(ans[i],0,BUF_SIZE);
+            }
+            if (send(client_sock, res,reslen , 0) != reslen)
             {
                 close_socket(client_sock);
                 close_socket(sock);
                 fprintf(stderr, "Error sending to client.\n");
                 return EXIT_FAILURE;
             }
-            memset(buf, 0, BUF_SIZE);
+            memset(res,0,sizeof(res));
         } 
 
         if (readret == -1)

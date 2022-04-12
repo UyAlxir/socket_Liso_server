@@ -7,7 +7,7 @@
 #include <fcntl.h>
 
 #define SUCCESS 0
-#define BUF_SIZE 8192
+#define BUF_SIZE 8192*2
 
 //Header field
 typedef struct
@@ -26,7 +26,7 @@ typedef struct
 	int header_count;
 } Request;
 
-Request* parse(char *buffer, int size,int socketFd);
+Request* parse(char *buffer, int size,int socketFd,int *cur);
 
 // functions decalred in parser.y
 int yyparse();
