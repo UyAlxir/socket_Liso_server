@@ -33,3 +33,19 @@ POST :
 附1:
 当request 头部文件大于8192时,不进行parse,直接返回parsing failed ,
 此操作在 parse.c 文件中 , 在从buf 到 buffer 匹配头部是加一个条件即可
+
+附2: 关于 log
+此处有两个log 设计
+    第一个也不能严格来说是log,就是一些直接输出到终端的稍微具有统一格式的信息
+        Log 为一般的输出信息（附带路径，行数和所在函数）输出为绿色
+        Log_er 为错误类型的输出 附带信息同上，输出为红色
+    第二个是输出到 log.txt 的 80% 按照 apache 的日志格式输出的 log
+        Access_Log 输出信息为 client ip,指令运行时刻的时间,收到的请求的信息,返回的信息代码和行数
+        Access_LOG_Null 为 Access_Log 的特殊情况，即 bad request ，没有收到的请求信息
+        Error_Log 错误情况,输出信息为client ip,时间,错误类型,错误发生的文件,行数,及函数信息以及附带信息
+
+* : 跟其他人的设计不同,此处仿照 nemu中的log 方法，把函数设计成了宏定义（虽然但是可能没有函数好懂）
+
+使用 log to terminal 和 log to file 两个宏定义来控制 这些,不想要的时候可以一个注释搞定,比函数方便一些
+
+

@@ -58,7 +58,7 @@ char cli_ip[32];
 #define Error_Log(format,...)\
 	do{\
 		log=fopen(filename,"a+");\
-		fprintf(log,"[%s] [error] [%s,%d,%s] " format "\n"\
+		fprintf(log,"[%s] [%s] [error] [%s,%d,%s] " format "\n" \
 				,cli_ip,gettime(),__FILE__,__LINE__,__func__,## __VA_ARGS__);\
 		fclose(log);\	
 	}while(0)
