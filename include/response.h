@@ -2,6 +2,7 @@
 #define __RESPOMSE_H_
 
 #include "parse.h"
+#include "log.h"
 
 #define BAD_REQUEST "HTTP/1.1 400 Bad request\r\n\r\n"
 #define NOT_IMPLEMENTED "HTTP/1.1 501 Not Implemented\r\n\r\n"
@@ -18,5 +19,12 @@
 
 int response(Request * request,int readret, char * buf);
 
+enum codes{
+    OK_CODE=200,
+    BAD_REQUEST_CODE=400,
+    NOT_FOUND_CODE=404,
+    NOT_IMPLEMENTED_CODE=501,
+    NOT_SUPPORTED_CODE=505
+};
 
 #endif 

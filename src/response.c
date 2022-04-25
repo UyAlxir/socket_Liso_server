@@ -1,5 +1,7 @@
 #include "response.h"
 
+
+
 int response(Request * request, int readret ,  char * buf){
 
     char _file_cont[BUF_SIZE];
@@ -11,6 +13,7 @@ int response(Request * request, int readret ,  char * buf){
         memset(buf,0,BUF_SIZE);
         strcpy(buf,BAD_REQUEST);
         readret=strlen(BAD_REQUEST);
+        Acceess_Log_Null(BAD_REQUEST_CODE,readret);
         return readret;
     }
 
@@ -19,6 +22,7 @@ int response(Request * request, int readret ,  char * buf){
         memset(buf,0,BUF_SIZE);
         strcpy(buf,NOT_SUPPORTED);
         readret=strlen(NOT_SUPPORTED);
+        Acceess_Log(request,NOT_SUPPORTED_CODE,readret);
         return readret;
     }
 
@@ -37,6 +41,7 @@ int response(Request * request, int readret ,  char * buf){
         if(fd_in<0){
             strcpy(buf,NOT_FOUND);
             readret=strlen(NOT_FOUND);
+            Acceess_Log(request,NOT_FOUND_CODE,readret);
             return readret;
         }
         strcpy(buf,_200_OK);
@@ -44,6 +49,7 @@ int response(Request * request, int readret ,  char * buf){
         int file_len = read(fd_in,_file_cont,BUF_SIZE);
         readret+=file_len;
         strcat(buf,_file_cont);
+        Acceess_Log(request,OK_CODE,readret);
         return readret;
     }
 
@@ -52,17 +58,20 @@ int response(Request * request, int readret ,  char * buf){
         memset(buf,0,BUF_SIZE);
         strcpy(buf,_200_OK);
         readret=strlen(_200_OK);
+        Acceess_Log(request,OK_CODE,readret);
         return readret;
     }
 
     //response post
     if(strcmp(request->http_method,_POST)==0){
         //currently do nothing
+        Acceess_Log(request,OK_CODE,readret);
         return readret;
     }
     // 501 not implemented
     memset(buf,0,BUF_SIZE);
     strcpy(buf,NOT_IMPLEMENTED);
     readret=strlen(NOT_IMPLEMENTED);
+    Acceess_Log(request,NOT_SUPPORTED_CODE,readret);
     return readret;
 }

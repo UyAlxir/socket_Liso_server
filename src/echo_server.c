@@ -21,16 +21,21 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <arpa/inet.h>
 #include "parse.h"
 #include "response.h"
+#include "log.h"
 
 #define ECHO_PORT 9999
+
+extern FILE *log;
 
 int close_socket(int sock)
 {
     if (close(sock))
     {
-        fprintf(stderr, "Failed closing socket.\n");
+        Log("Failed closing socket.");
+        Error_Log("Failed closing socket.");
         return 1;
     }
     return 0;
@@ -48,12 +53,14 @@ int main(int argc, char* argv[])
     char res[BUF_SIZE*24];
     int cur[1];
 
-    fprintf(stdout, "----- Liso Server -----\n");
+    Log("----- Liso Server -----");
+    log_init();
     
     /* all networked programs must create a socket */
     if ((sock = socket(PF_INET, SOCK_STREAM, 0)) == -1)
     {
-        fprintf(stderr, "Failed creating socket.\n");
+        Log_er("Failed creating socket.");
+        Error_Log("Failed creating socket.");
         return EXIT_FAILURE;
     }
 
@@ -65,15 +72,16 @@ int main(int argc, char* argv[])
     if (bind(sock, (struct sockaddr *) &addr, sizeof(addr)))
     {
         close_socket(sock);
-        fprintf(stderr, "Failed binding socket.\n");
+        Log_er("Failed binding socket.");
+        Error_Log("Failed binding socket.");
         return EXIT_FAILURE;
     }
-
 
     if (listen(sock, 5))
     {
         close_socket(sock);
-        fprintf(stderr, "Error listening on socket.\n");
+        Log_er("Error listening on socket.");
+        Error_Log("Error listening on socket.");
         return EXIT_FAILURE;
     }
 
@@ -85,9 +93,13 @@ int main(int argc, char* argv[])
                                     &cli_size)) == -1)
         {
             close(sock);
-            fprintf(stderr, "Error accepting connection.\n");
+            Log_er("Error accepting connection.");
+            Error_Log("Error accepting connection.");
             return EXIT_FAILURE;
         }
+        // get current client ip
+        memset(cli_ip,0,sizeof cli_ip);
+        strcpy(cli_ip,inet_ntoa(cli_addr.sin_addr));
 
         readret = 0;
         int cnt=0;
@@ -101,7 +113,6 @@ int main(int argc, char* argv[])
                 Request *request = parse(buf+cur[0],readret-cur[0],sock,cur);
                 if(cur[0]-cur_before==2&&request==NULL)continue;
                 strncpy(ans[cnt],buf+cur_before,cur[0]-cur_before);
-
                 lens[cnt]= response(request,cur[0]-cur_before,ans[cnt]);
                 cnt++;
                 if(cnt>=24)break;
@@ -118,7 +129,8 @@ int main(int argc, char* argv[])
             {
                 close_socket(client_sock);
                 close_socket(sock);
-                fprintf(stderr, "Error sending to client.\n");
+                Log_er("Error sending to client.");
+                Error_Log("Error sending to client.");
                 return EXIT_FAILURE;
             }
             memset(res,0,sizeof(res));
@@ -128,19 +140,22 @@ int main(int argc, char* argv[])
         {
             close_socket(client_sock);
             close_socket(sock);
-            fprintf(stderr, "Error reading from client socket.\n");
+            Log_er("Error reading from client socket.");
+            Error_Log("Error reading from client socket.");
             return EXIT_FAILURE;
         }
 
         if (close_socket(client_sock))
         {
             close_socket(sock);
-            fprintf(stderr, "Error closing client socket.\n");
+            Log_er("Error closing client socket.");
+            Error_Log("Error closing client socket.");
             return EXIT_FAILURE;
         }
     }
 
     close_socket(sock);
+    log_close();  
 
     return EXIT_SUCCESS;
 }
