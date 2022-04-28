@@ -1,4 +1,5 @@
 #include "parse.h"
+#include "log.h"
 
 /**
 * Given a char buffer returns the parsed request headers
@@ -66,7 +67,8 @@ Request * parse(char *buffer, int size, int socketFd,int *cur) {
 	// when it is falied to parse , clear the buffer of parser
 	yylex_destroy();	
     //TODO Handle Malformed Requests
-    printf("Parsing Failed\n");
+    // printf("Parsing Failed\n");
+	Log_er("Parsing Failed");
 	
 	return NULL;
 }

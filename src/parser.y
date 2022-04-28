@@ -9,7 +9,7 @@
 
 /* Define YACCDEBUG to enable debug messages for this lex file */
 //#define YACCDEBUG
-#define YYERROR_VERBOSE
+//#define YYERROR_VERBOSE
 #ifdef YACCDEBUG
 #include <stdio.h>
 #define YPRINTF(...) printf(__VA_ARGS__)
